@@ -26,16 +26,12 @@ export function Breadcrumbs() {
   }, [currentItem]);
 
   return (
-    <BreadcrumbsComponent
-      color="primary"
-      variant="bordered"
-      separator=" / "
-      onAction={(e) => {
-        console.log(e);
-      }}
-    >
+    <BreadcrumbsComponent color="primary" variant="bordered" separator=" / ">
       {path.map((item, n) => (
-        <BreadcrumbItem key={`breadcrumb-item-${n}`}>
+        <BreadcrumbItem
+          key={`breadcrumb-item-${n}`}
+          onPress={() => setCurrentItem(item)}
+        >
           {item.name}
         </BreadcrumbItem>
       ))}

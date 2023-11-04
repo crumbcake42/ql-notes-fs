@@ -6,7 +6,7 @@ import { makeItem } from "../utils/make-item";
 
 export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [currentItem, setCurrentItem] = useState<Item>(rootItem);
-
+  console.log(currentItem);
   const addNote = useCallback((fileName: string, noteText: string) => {
     setCurrentItem((prevItem) => {
       // Deep clone the item
