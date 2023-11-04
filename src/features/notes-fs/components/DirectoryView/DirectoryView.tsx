@@ -8,6 +8,7 @@ import {
   TableRow,
   TableCell,
   getKeyValue,
+  Selection,
 } from "@nextui-org/react";
 import { BsFileEarmark, BsFolder } from "react-icons/bs";
 
@@ -41,21 +42,28 @@ export const DirectoryView: React.FC<DirectoryViewProps> = ({ directory }) => {
   const { setCurrentItem } = useNotesFS();
   const [selected, setSelected] = useState<string[]>([]);
 
-  const handleItemClick = (name: string) => {
+  const handleItemClick = (name: unknown) => {
     const item = directory.items.find((i) => i.name === name);
-    console.log({ name, item });
     if (item) setCurrentItem(item);
   };
 
+  const handleSelectionChange = (selection: Selection) => {
+    setSelected(
+      selection === "all"
+        ? directory.items.map((i) => i.name)
+        : Array.from(selection).filter(
+            (key): key is string => typeof key === "string"
+          )
+    );
+  };
   return (
     <div className="space-y-2">
       <DirectoryViewButtons selected={selected} />
       <Table
         className="w-full"
         selectionMode="multiple"
-        onRowAction={(key) => {
-          if (typeof key === "string") handleItemClick(key);
-        }}
+        onSelectionChange={handleSelectionChange}
+        onRowAction={handleItemClick}
       >
         <TableHeader columns={columns}>
           {(column) => (

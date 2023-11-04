@@ -6,12 +6,14 @@ import { Button, ButtonProps, useDisclosure } from "@nextui-org/react";
 import { BsFileEarmarkPlus, BsFolderPlus } from "react-icons/bs";
 import { AddNoteModal } from "./AddNoteModal";
 import { AddDirectoryModal } from "./AddDirectoryModal";
+import { DeleteItemsModal } from "./DeleteItemsModal";
 
 export const DirectoryViewButtons: FC<{ selected: string[] }> = ({
   selected,
 }) => {
   const addNoteDisclosure = useDisclosure();
   const addDirectoryDisclosure = useDisclosure();
+  const deleteItemsDisclosure = useDisclosure();
 
   const btnProps: ButtonProps = {
     variant: "faded",
@@ -37,13 +39,18 @@ export const DirectoryViewButtons: FC<{ selected: string[] }> = ({
           </Button>
         </div>
         <div>
-          <Button color="danger" isDisabled={!selected.length}>
+          <Button
+            color="danger"
+            isDisabled={!selected.length}
+            onClick={deleteItemsDisclosure.onOpen}
+          >
             Delete Selected
           </Button>
         </div>
       </div>
       <AddNoteModal {...addNoteDisclosure} />
       <AddDirectoryModal {...addDirectoryDisclosure} />
+      <DeleteItemsModal {...deleteItemsDisclosure} selected={selected} />
     </>
   );
 };

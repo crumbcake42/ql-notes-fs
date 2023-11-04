@@ -33,6 +33,21 @@ export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
     });
   }, []);
 
+  const deleteItems = useCallback((namesToRemove: string[]) => {
+    setCurrentItem((prevItem) => {
+      // Deep clone the item
+      const newItem = _.cloneDeep(prevItem);
+
+      if (newItem.type === "directory") {
+        newItem.items = newItem.items.filter(
+          (item) => !namesToRemove.includes(item.name)
+        );
+      }
+
+      return newItem;
+    });
+  }, []);
+
   const updateNote = useCallback((newText: string) => {
     setCurrentItem((prevItem) => {
       const newItem = _.cloneDeep(prevItem);
@@ -51,6 +66,7 @@ export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
         addNote,
         addDirectory,
         updateNote,
+        deleteItems,
       }}
     >
       {children}

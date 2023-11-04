@@ -2,9 +2,6 @@
 
 import { FC, useState } from "react";
 
-import { Button, ButtonProps, useDisclosure } from "@nextui-org/react";
-import { BsFileEarmarkPlus, BsFolderPlus } from "react-icons/bs";
-
 import { useNotesFS } from "../../hooks/useNotesFS";
 
 import { AddItemModal, BaseAddItemModalProps } from "./AddItemModal";

@@ -18,6 +18,7 @@ export interface NotesFSContext {
   addNote: (fileName: string, noteText: string) => void;
   addDirectory: (newDirName: string) => void;
   updateNote: (newText: string) => void;
+  deleteItems: (namesToRemove: string[]) => void;
 }
 
 export const rootItem = makeItem("directory", "Root");
@@ -28,4 +29,5 @@ export const NotesFSContext = createContext<NotesFSContext>({
   addNote: alertMissingMethod("addNote"),
   addDirectory: alertMissingMethod("addDirectory"),
   updateNote: alertMissingMethod("updateNote"),
+  deleteItems: alertMissingMethod("deleteItems"),
 });
