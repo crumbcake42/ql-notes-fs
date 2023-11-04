@@ -12,7 +12,7 @@ function Header() {
 
 export default function ReactApp() {
   return (
-    <main className="min-h-screen min-w-screen">
+    <main className="dark text-foreground bg-background min-h-screen min-w-screen">
       <Header />
       <NotesFS />
     </main>

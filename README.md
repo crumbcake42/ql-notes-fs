@@ -53,14 +53,14 @@ If there are any questions or issues about the starter code, please reach out to
 
 ## Mickey's notes
 
-### Commit 48840e29bb39d0e346d195543e20b4aebd374d1e
+### Initial setup
 
 Installed NextUI component library to speek up prototyping. I chose it because it had several components to served the scope of this task nicely and I liked the look of them.
 
 That said, if I was actually planning anything for production, I would definitely do more research regarding performance, bundle size, and maintainability.
 
-### Commit 5b1fb61e502c35800dce24e661b842110f6d8c7a
+### Restructuring directories
 
-I refactored the project structure to be in line with the one outlined [here](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md). In the past I found myself following my gut when deciding how to organize things, but I soon realized my gut was unreliable. When I came across this repo I decided to adopt its conventions to keep everything neat and consistent.
+I restructured the project structure to be in line with the one outlined [here](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md). In the past I found myself following my gut when deciding how to organize things, but I soon realized my gut was unreliable. When I came across this repo I decided to adopt its conventions to keep everything neat and consistent.
 
 This meant everything related to the filesystem workspace was moved into its own `notes-fs` directory. I broke apart the pieces from the original `workspace` file into more granular ones to separate the Context and components code.

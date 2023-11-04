@@ -2,8 +2,9 @@ import { useCallback } from "react";
 
 import { useNotesFS } from "../hooks/useNotesFS";
 
-import { NoteView } from "./NoteView";
+import { Breadcrumbs } from "./Breadcrumbs";
 import { DirectoryView } from "./DirectoryView";
+import { NoteView } from "./NoteView";
 
 export function Workspace() {
   const { setCurrentItem, currentItem: item } = useNotesFS();
@@ -18,9 +19,8 @@ export function Workspace() {
   }, [item, setCurrentItem]);
 
   return (
-    <div>
-      <h2>Current Item: {item.name}</h2>
-      <h3>Type: {item.type}</h3>
+    <div className="container mx-auto space-y-2 py-4">
+      <Breadcrumbs />
       <div>
         {item.parent != null && (
           <button onClick={goToEnclosingFolder}>Previous Directory</button>
