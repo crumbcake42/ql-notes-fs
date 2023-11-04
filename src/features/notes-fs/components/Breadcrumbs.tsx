@@ -26,7 +26,7 @@ export function Breadcrumbs() {
   }, [currentItem]);
 
   return (
-    <BreadcrumbsComponent color="primary" variant="bordered" separator=" / ">
+    <BreadcrumbsComponent variant="bordered" separator=" / ">
       {path.map((item, n) => (
         <BreadcrumbItem
           key={`breadcrumb-item-${n}`}

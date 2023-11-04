@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -11,10 +11,10 @@ import {
 } from "@nextui-org/react";
 import { BsFileEarmark, BsFolder } from "react-icons/bs";
 
-import { Directory, Item } from "../../types";
+import { Directory } from "../../types";
 
 import { useNotesFS } from "../../hooks/useNotesFS";
-import { DirectoryViewButtons } from "./DirectoryViewButtons";
+import { DirectoryViewButtons } from "../DirectoryViewButtons";
 
 interface DirectoryViewProps {
   directory: Directory;
@@ -39,6 +39,7 @@ const columns = [
 
 export const DirectoryView: React.FC<DirectoryViewProps> = ({ directory }) => {
   const { setCurrentItem } = useNotesFS();
+  const [selected, setSelected] = useState<string[]>([]);
 
   const handleItemClick = (name: string) => {
     const item = directory.items.find((i) => i.name === name);
@@ -48,7 +49,7 @@ export const DirectoryView: React.FC<DirectoryViewProps> = ({ directory }) => {
 
   return (
     <div className="space-y-2">
-      <DirectoryViewButtons />
+      <DirectoryViewButtons selected={selected} />
       <Table
         className="w-full"
         selectionMode="multiple"
