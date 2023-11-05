@@ -8,19 +8,19 @@ import { BsFileEarmarkPlus, BsFolderPlus } from "react-icons/bs";
 
 import { useNotesFS } from "../../hooks/useNotesFS";
 
-import { AddNoteModal, AddDirectoryModal, DeleteItemsModal } from "../modals";
-
 const DebugButton = dynamic(() => import("./DirectoryViewDebugButtons"), {
   ssr: false,
 });
 
 const SHOW_DEBUG_TOOLS = !!process.env.NEXT_PUBLIC_DEBUG_NOTES_FS;
 
-export const DirectoryViewButtons: FC = () => {
+type Callback = () => void;
+export const DirectoryViewButtons: FC<{
+  onClickAddNote: undefined | Callback;
+  onClickAddDirectory: undefined | Callback;
+  onClickDeleteItems: undefined | Callback;
+}> = ({ onClickAddNote, onClickAddDirectory, onClickDeleteItems }) => {
   const { selectedItems } = useNotesFS();
-  const addNoteDisclosure = useDisclosure();
-  const addDirectoryDisclosure = useDisclosure();
-  const deleteItemsDisclosure = useDisclosure();
 
   const btnProps: ButtonProps = {
     variant: "faded",
@@ -33,14 +33,14 @@ export const DirectoryViewButtons: FC = () => {
           <Button
             {...btnProps}
             startContent={<BsFileEarmarkPlus />}
-            onClick={addNoteDisclosure.onOpen}
+            onClick={onClickAddNote}
           >
             New Note
           </Button>
           <Button
             {...btnProps}
             startContent={<BsFolderPlus />}
-            onClick={addDirectoryDisclosure.onOpen}
+            onClick={onClickAddDirectory}
           >
             New Directory
           </Button>
@@ -49,16 +49,13 @@ export const DirectoryViewButtons: FC = () => {
           <Button
             color="danger"
             isDisabled={!selectedItems}
-            onClick={deleteItemsDisclosure.onOpen}
+            onClick={onClickDeleteItems}
           >
             Delete Selected
           </Button>
         </div>
       </div>
       {SHOW_DEBUG_TOOLS ? <DebugButton /> : null}
-      <AddNoteModal {...addNoteDisclosure} />
-      <AddDirectoryModal {...addDirectoryDisclosure} />
-      <DeleteItemsModal {...deleteItemsDisclosure} />
     </>
   );
 };

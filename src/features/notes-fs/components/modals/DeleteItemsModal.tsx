@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, Fragment, ReactNode } from "react";
+import { FC, Fragment, ReactNode, useEffect } from "react";
 import {
   Button,
   UseDisclosureProps,
@@ -9,50 +9,35 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  ScrollShadow,
 } from "@nextui-org/react";
+import clsx from "clsx";
 
 import { BsFileEarmark, BsFolder } from "react-icons/bs";
 
 import { useNotesFS } from "../../hooks/useNotesFS";
 import { Directory, Item } from "../../types";
-import clsx from "clsx";
 
-const countItems = (
-  directory: Directory,
-  path: string = ""
-): { total: number; flattedItems: [string, string][] } => {
+const countItems = (directory: Directory): number => {
   let total = 0;
-  const flattedItems: [string, string][] = [];
   for (const item of directory.items) {
-    const itemPath = `${path}/${item.name}`;
     total++;
-    flattedItems.push([itemPath, item.type]);
-    if (item.type === "directory") {
-      const data = countItems(item, itemPath);
-      total += data.total;
-      flattedItems.push(...data.flattedItems);
-    }
+    if (item.type === "directory") total += countItems(item);
   }
 
-  return { total, flattedItems };
+  return total;
 };
 
-const RenderItem: FC<{ item: Item; path?: string; depth?: number }> = ({
+const RenderItem: FC<{ item: Item; depth?: number }> = ({
   item,
-  path = "",
   depth = 0,
 }) => {
   let children: ReactNode[] = [];
 
   if (item.type === "directory") {
-    const newPath = `${path}/${item.name}`;
-
-    children.push(<div></div>);
     for (const child of item.items)
       children.push(
         <RenderItem
-          key={`${newPath}/${child.name}`}
+          key={`${depth}/${item.name}/${child.name}`}
           item={child}
           depth={depth + 1}
         />
@@ -83,23 +68,29 @@ const RenderItem: FC<{ item: Item; path?: string; depth?: number }> = ({
 
 export const DeleteItemsModal: FC<UseDisclosureProps> = ({
   isOpen,
-  onClose,
+  ...props
 }) => {
   const { currentItem, selectedItems, setSelectedItems, deleteItems } =
     useNotesFS();
-
-  const handleSubmit = () => {
-    if (selectedItems) {
-      deleteItems(selectedItems);
-      setSelectedItems(null);
-    }
-    if (onClose) onClose();
-  };
 
   if (currentItem.type !== "directory")
     throw new Error(
       "DeleteItemsModal should only be rendered in contexts where currentItem is a Directory"
     );
+
+  const onClose = () => {
+    setSelectedItems(null);
+    if (props.onClose) props.onClose();
+  };
+
+  const handleSubmit = () => {
+    if (selectedItems) deleteItems(selectedItems);
+    onClose();
+  };
+
+  const items = currentItem.items.filter((item) =>
+    selectedItems?.includes(item.name)
+  );
 
   return (
     <Modal
@@ -123,11 +114,9 @@ export const DeleteItemsModal: FC<UseDisclosureProps> = ({
             </ModalHeader>
             <ModalBody>
               <div>
-                {currentItem.items
-                  .filter((item) => selectedItems?.includes(item.name))
-                  .map((item) => (
-                    <RenderItem key={item.name} item={item} />
-                  ))}
+                {items.map((item) => (
+                  <RenderItem key={item.name} item={item} />
+                ))}
               </div>
             </ModalBody>
             <ModalFooter>
@@ -135,7 +124,17 @@ export const DeleteItemsModal: FC<UseDisclosureProps> = ({
                 Cancel
               </Button>
               <Button color="danger" onPress={handleSubmit}>
-                Delete all notes
+                Delete{" "}
+                {[
+                  items.reduce(
+                    (total, item) =>
+                      total +
+                      1 +
+                      (item.type === "directory" ? countItems(item) : 0),
+                    0
+                  ),
+                ]}{" "}
+                items
               </Button>
             </ModalFooter>
           </>
