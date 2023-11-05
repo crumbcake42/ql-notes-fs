@@ -1,6 +1,7 @@
 "use client";
 
 import { FC } from "react";
+import dynamic from "next/dynamic";
 
 import { Button, ButtonProps, useDisclosure } from "@nextui-org/react";
 import { BsFileEarmarkPlus, BsFolderPlus } from "react-icons/bs";
@@ -8,6 +9,12 @@ import { BsFileEarmarkPlus, BsFolderPlus } from "react-icons/bs";
 import { useNotesFS } from "../../hooks/useNotesFS";
 
 import { AddNoteModal, AddDirectoryModal, DeleteItemsModal } from "../modals";
+
+const DebugButton = dynamic(() => import("./DirectoryViewDebugButtons"), {
+  ssr: false,
+});
+
+const SHOW_DEBUG_TOOLS = !!process.env.NEXT_PUBLIC_DEBUG_NOTES_FS;
 
 export const DirectoryViewButtons: FC = () => {
   const { selectedItems } = useNotesFS();
@@ -48,6 +55,7 @@ export const DirectoryViewButtons: FC = () => {
           </Button>
         </div>
       </div>
+      {SHOW_DEBUG_TOOLS ? <DebugButton /> : null}
       <AddNoteModal {...addNoteDisclosure} />
       <AddDirectoryModal {...addDirectoryDisclosure} />
       <DeleteItemsModal {...deleteItemsDisclosure} />

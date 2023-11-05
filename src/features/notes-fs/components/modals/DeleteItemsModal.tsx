@@ -18,9 +18,15 @@ const RenderItem: FC<{ item: Item; path?: string }> = ({ item, path = "" }) => {
   let children: ReactNode[] = [];
 
   if (item.type === "directory") {
-    for (const child of item.items) {
-      children.push(<RenderItem item={child} path={`${path}/${item.name}`} />);
-    }
+    const newPath = `${path}/${item.name}`;
+    for (const child of item.items)
+      children.push(
+        <RenderItem
+          key={`${newPath}/${child.name}`}
+          item={child}
+          path={newPath}
+        />
+      );
   }
 
   return (
