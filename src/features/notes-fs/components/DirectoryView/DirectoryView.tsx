@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -9,38 +10,42 @@ import {
   TableCell,
   getKeyValue,
   Selection,
+  TableColumnProps,
+  SortDescriptor,
 } from "@nextui-org/react";
+
+import { clsx } from "clsx";
 import { BsFileEarmark, BsFolder } from "react-icons/bs";
 
-import { Directory } from "../../types";
+import { Directory, Item } from "../../types";
 
 import { useNotesFS } from "../../hooks/useNotesFS";
 import { DirectoryViewButtons } from "./DirectoryViewButtons";
-import { useEffect } from "react";
 
-interface DirectoryViewProps {
-  directory: Directory;
+interface ColProps extends Omit<TableColumnProps<Item>, "children"> {
+  label: string;
 }
 
-const columns = [
+const columns: ColProps[] = [
+  {
+    key: "type",
+    label: "Type",
+    allowsSorting: true,
+    width: 20,
+  },
   {
     key: "name",
     label: "Filename",
     allowsSorting: true,
   },
-  {
-    key: "slug",
-    label: "Slug",
-  },
-  {
-    key: "type",
-    label: "Type",
-    allowsSorting: true,
-  },
 ];
 
-export const DirectoryView: React.FC<DirectoryViewProps> = ({ directory }) => {
-  const { setCurrentItem, selectedItems, setSelectedItems } = useNotesFS();
+export const DirectoryView: React.FC<{
+  directory: Directory;
+}> = ({ directory }) => {
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>();
+  const { setCurrentItem, selectedItems, setSelectedItems, sortItems } =
+    useNotesFS();
 
   const handleItemClick = (name: unknown) => {
     const item = directory.items.find((i) => i.name === name);
@@ -65,48 +70,61 @@ export const DirectoryView: React.FC<DirectoryViewProps> = ({ directory }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    console.log(sortDescriptor);
+    if (sortDescriptor) sortItems(sortDescriptor);
+  }, [sortItems, sortDescriptor]);
+
   return (
     <div className="space-y-2">
       <DirectoryViewButtons />
       <Table
+        isCompact={false}
         className="w-full"
         selectionMode="multiple"
         selectedKeys={new Set(selectedItems)}
         onSelectionChange={handleSelectionChange}
         onRowAction={handleItemClick}
+        sortDescriptor={sortDescriptor}
+        onSortChange={setSortDescriptor}
+        classNames={{ th: "first:w-4", td: "first:w-4" }}
       >
         <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn key={column.key}>{column.label}</TableColumn>
-          )}
+          {({ key, label, ...props }) => {
+            return (
+              <TableColumn key={key} {...props}>
+                {label}
+              </TableColumn>
+            );
+          }}
         </TableHeader>
         <TableBody items={directory.items} emptyContent={"Directory is Empty"}>
           {(item) => (
             <TableRow key={item.name}>
               {(columnKey) => {
-                let cellContent = getKeyValue(item, columnKey);
+                let cellContent;
 
                 switch (columnKey) {
-                  case "name":
-                    const Icon =
-                      item.type === "directory" ? BsFolder : BsFileEarmark;
-
-                    cellContent = (
-                      <div className="flex items-center space-x-4">
-                        <Icon />
-                        <span>{cellContent}</span>
-                      </div>
-                    );
-                    break;
-
                   case "type":
-                    cellContent = (
-                      <div className="capitalize">{cellContent}</div>
-                    );
+                    const styles = "mx-auto";
+                    cellContent =
+                      item.type === "directory" ? (
+                        <BsFolder className={clsx(styles, "text-warning")} />
+                      ) : (
+                        <BsFileEarmark className={styles} />
+                      );
                     break;
+                  default:
+                    cellContent = getKeyValue(item, columnKey);
                 }
 
-                return <TableCell>{cellContent}</TableCell>;
+                return (
+                  <TableCell
+                    className={clsx({ "text-center": columnKey === "type" })}
+                  >
+                    {cellContent}
+                  </TableCell>
+                );
               }}
             </TableRow>
           )}

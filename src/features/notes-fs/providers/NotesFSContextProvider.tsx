@@ -3,12 +3,12 @@ import { NotesFSContext, rootItem } from "./NotesFSContext";
 import React, { FC, PropsWithChildren, useState, useCallback } from "react";
 import _ from "lodash";
 import { makeItem } from "../utils/make-item";
+import { SortDescriptor } from "@nextui-org/react";
 
 export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [currentItem, setCurrentItem] = useState<Item>(rootItem);
   const [selectedItems, setSelectedItems] = useState<string[] | null>(null);
 
-  console.log(currentItem);
   const addNote = useCallback((fileName: string, noteText: string) => {
     setCurrentItem((prevItem) => {
       // Deep clone the item
@@ -31,6 +31,34 @@ export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
         newDir.parent = newItem;
         newItem.items = newItem.items ? [...newItem.items, newDir] : [newDir];
       }
+      return newItem;
+    });
+  }, []);
+
+  const sortItems = useCallback(({ column, direction }: SortDescriptor) => {
+    console.log({ column, direction });
+    const isItemKey = (key: unknown): key is keyof Item =>
+      typeof key === "string" &&
+      ["type", "name", "slug", "parent"].includes(key);
+
+    if (!isItemKey(column)) return;
+
+    setCurrentItem((prevItem) => {
+      // Deep clone the item
+      const newItem = _.cloneDeep(prevItem);
+
+      if (newItem.type === "directory") {
+        newItem.items = newItem.items.sort((a, b) => {
+          let cmp = (a[column] || -1) < (b[column] || -1) ? -1 : 1;
+
+          if (direction === "descending") {
+            cmp *= -1;
+          }
+
+          return cmp;
+        });
+      }
+
       return newItem;
     });
   }, []);
@@ -69,8 +97,9 @@ export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
         setSelectedItems,
         addNote,
         addDirectory,
-        updateNote,
+        sortItems,
         deleteItems,
+        updateNote,
       }}
     >
       {children}
