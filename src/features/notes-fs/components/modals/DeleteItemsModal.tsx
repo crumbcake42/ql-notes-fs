@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, ReactNode, useState } from "react";
+import { FC, ReactNode } from "react";
 import {
   Button,
   UseDisclosureProps,
@@ -9,15 +9,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Spacer,
 } from "@nextui-org/react";
 
 import { useNotesFS } from "../../hooks/useNotesFS";
 import { Item } from "../../types";
-
-interface DeleteItemsModalProps extends UseDisclosureProps {
-  selected: string[];
-}
 
 const RenderItem: FC<{ item: Item; path?: string }> = ({ item, path = "" }) => {
   let children: ReactNode[] = [];
@@ -39,15 +34,18 @@ const RenderItem: FC<{ item: Item; path?: string }> = ({ item, path = "" }) => {
   );
 };
 
-export const DeleteItemsModal: FC<DeleteItemsModalProps> = ({
-  selected,
+export const DeleteItemsModal: FC<UseDisclosureProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { currentItem, deleteItems } = useNotesFS();
+  const { currentItem, selectedItems, setSelectedItems, deleteItems } =
+    useNotesFS();
 
   const handleSubmit = () => {
-    deleteItems(selected);
+    if (selectedItems) {
+      deleteItems(selectedItems);
+      setSelectedItems(null);
+    }
     if (onClose) onClose();
   };
 
@@ -79,7 +77,7 @@ export const DeleteItemsModal: FC<DeleteItemsModalProps> = ({
             <ModalBody>
               <div>
                 {currentItem.items
-                  .filter((item) => selected.includes(item.name))
+                  .filter((item) => selectedItems?.includes(item.name))
                   .map((item) => (
                     <RenderItem key={item.name} item={item} />
                   ))}

@@ -4,13 +4,13 @@ import { FC } from "react";
 
 import { Button, ButtonProps, useDisclosure } from "@nextui-org/react";
 import { BsFileEarmarkPlus, BsFolderPlus } from "react-icons/bs";
-import { AddNoteModal } from "./AddNoteModal";
-import { AddDirectoryModal } from "./AddDirectoryModal";
-import { DeleteItemsModal } from "./DeleteItemsModal";
 
-export const DirectoryViewButtons: FC<{ selected: string[] }> = ({
-  selected,
-}) => {
+import { useNotesFS } from "../../hooks/useNotesFS";
+
+import { AddNoteModal, AddDirectoryModal, DeleteItemsModal } from "../modals";
+
+export const DirectoryViewButtons: FC = () => {
+  const { selectedItems } = useNotesFS();
   const addNoteDisclosure = useDisclosure();
   const addDirectoryDisclosure = useDisclosure();
   const deleteItemsDisclosure = useDisclosure();
@@ -41,7 +41,7 @@ export const DirectoryViewButtons: FC<{ selected: string[] }> = ({
         <div>
           <Button
             color="danger"
-            isDisabled={!selected.length}
+            isDisabled={!selectedItems}
             onClick={deleteItemsDisclosure.onOpen}
           >
             Delete Selected
@@ -50,7 +50,7 @@ export const DirectoryViewButtons: FC<{ selected: string[] }> = ({
       </div>
       <AddNoteModal {...addNoteDisclosure} />
       <AddDirectoryModal {...addDirectoryDisclosure} />
-      <DeleteItemsModal {...deleteItemsDisclosure} selected={selected} />
+      <DeleteItemsModal {...deleteItemsDisclosure} />
     </>
   );
 };

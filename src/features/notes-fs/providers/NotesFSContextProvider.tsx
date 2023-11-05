@@ -6,6 +6,8 @@ import { makeItem } from "../utils/make-item";
 
 export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [currentItem, setCurrentItem] = useState<Item>(rootItem);
+  const [selectedItems, setSelectedItems] = useState<string[] | null>(null);
+
   console.log(currentItem);
   const addNote = useCallback((fileName: string, noteText: string) => {
     setCurrentItem((prevItem) => {
@@ -63,6 +65,8 @@ export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
       value={{
         currentItem,
         setCurrentItem,
+        selectedItems,
+        setSelectedItems,
         addNote,
         addDirectory,
         updateNote,

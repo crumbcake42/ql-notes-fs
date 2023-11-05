@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+
 import {
   Table,
   TableHeader,
@@ -15,7 +15,8 @@ import { BsFileEarmark, BsFolder } from "react-icons/bs";
 import { Directory } from "../../types";
 
 import { useNotesFS } from "../../hooks/useNotesFS";
-import { DirectoryViewButtons } from "../DirectoryViewButtons";
+import { DirectoryViewButtons } from "./DirectoryViewButtons";
+import { useEffect } from "react";
 
 interface DirectoryViewProps {
   directory: Directory;
@@ -39,8 +40,7 @@ const columns = [
 ];
 
 export const DirectoryView: React.FC<DirectoryViewProps> = ({ directory }) => {
-  const { setCurrentItem } = useNotesFS();
-  const [selected, setSelected] = useState<string[]>([]);
+  const { setCurrentItem, selectedItems, setSelectedItems } = useNotesFS();
 
   const handleItemClick = (name: unknown) => {
     const item = directory.items.find((i) => i.name === name);
@@ -48,20 +48,30 @@ export const DirectoryView: React.FC<DirectoryViewProps> = ({ directory }) => {
   };
 
   const handleSelectionChange = (selection: Selection) => {
-    setSelected(
-      selection === "all"
-        ? directory.items.map((i) => i.name)
-        : Array.from(selection).filter(
-            (key): key is string => typeof key === "string"
-          )
-    );
+    let selected: typeof selectedItems;
+    if (selection === "all") selected = directory.items.map((i) => i.name);
+    else if (selection.size > 0)
+      selected = Array.from(selection).filter(
+        (key): key is string => typeof key === "string"
+      );
+    else selected = null;
+
+    setSelectedItems(selected);
   };
+
+  // Clear selectedItems when component unmounts
+  useEffect(() => {
+    return () => setSelectedItems(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="space-y-2">
-      <DirectoryViewButtons selected={selected} />
+      <DirectoryViewButtons />
       <Table
         className="w-full"
         selectionMode="multiple"
+        selectedKeys={new Set(selectedItems)}
         onSelectionChange={handleSelectionChange}
         onRowAction={handleItemClick}
       >
