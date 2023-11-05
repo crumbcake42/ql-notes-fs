@@ -3,7 +3,7 @@ import { FC, KeyboardEventHandler, useState } from "react";
 import { Note } from "../../types";
 import { useNotesFS } from "../../hooks/useNotesFS";
 
-import { Button, Input, Spacer } from "@nextui-org/react";
+import { Button, ButtonGroup, Input, Spacer } from "@nextui-org/react";
 import { BsPenFill } from "react-icons/bs";
 
 export const NoteHeader: FC<{
@@ -13,21 +13,37 @@ export const NoteHeader: FC<{
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(note.name);
 
-  const isValidFilename = (name: string | null) => {
+  const [error, setError] = useState<string | null>(null);
+
+  const isValidFilename = (name: string): name is string => {
+    if (!name?.length) return false;
     return (
-      !name?.length && !currentItem.parent?.items.some((i) => i.name === name)
+      note.name === name ||
+      !currentItem.parent?.items.some((i) => i.name === name)
     );
   };
 
-  const handleNoteSubmit = () => {
-    console.log(name);
-    if (isValidFilename(name)) {
-      alert("Cannot save empty note.");
-      return;
+  const validateName = (name?: string | null): name is string => {
+    let isValid = false;
+
+    if (!name?.length) {
+      setError("Name can't be blank");
+    } else if (!isValidFilename(name)) {
+      setError(`An item already exists with the name "${name}"`);
+    } else {
+      setError(null);
+      isValid = true;
     }
 
-    renameItem(name);
-    setIsEditing(false);
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    const isValidName = validateName(name);
+    if (isValidName) {
+      renameItem(name);
+      setIsEditing(false);
+    }
   };
 
   const handleKeyPress: KeyboardEventHandler = (e) => {
@@ -36,21 +52,43 @@ export const NoteHeader: FC<{
         setIsEditing(false);
         break;
       case "Enter":
-        handleNoteSubmit();
+        handleSubmit();
     }
   };
 
   return (
     <div className="mb-4">
       {isEditing ? (
-        <Input
-          autoFocus
-          type="text"
-          variant="underlined"
-          value={name}
-          onValueChange={setName}
-          onKeyUp={handleKeyPress}
-        />
+        <>
+          <Input
+            autoFocus
+            type="text"
+            variant="underlined"
+            value={name}
+            onValueChange={setName}
+            onKeyUp={handleKeyPress}
+            onBlur={() => {
+              const trimmedName = name?.trim();
+              setName(trimmedName);
+              validateName(trimmedName);
+            }}
+            endContent={
+              <ButtonGroup size="sm" variant="flat">
+                <Button onClick={handleSubmit}>Save</Button>
+                <Button
+                  color="danger"
+                  onClick={() => {
+                    setName(note.name);
+                    setIsEditing(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </ButtonGroup>
+            }
+          />
+          {error && <span className="text-danger text-sm">{error}</span>}
+        </>
       ) : (
         <h1
           onClick={() => setIsEditing(true)}
