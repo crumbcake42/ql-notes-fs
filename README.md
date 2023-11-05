@@ -64,3 +64,51 @@ That said, if I was actually planning anything for production, I would definitel
 I restructured the project structure to be in line with the one outlined [here](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md). In the past I found myself following my gut when deciding how to organize things, but I soon realized my gut was unreliable. When I came across this repo I decided to adopt its conventions to keep everything neat and consistent.
 
 This meant everything related to the filesystem workspace was moved into its own `notes-fs` directory. I broke apart the pieces from the original `workspace` file into more granular ones to separate the Context and components code.
+
+### Feature buildout
+
+I used the NextUI `Table` component to display the directory items in `DirectoryView`.
+
+- The items are sortable by `type` and `name`.
+
+Clicking on the checkbox will let you multiselect as many items as you want.
+
+- If no items are selected, the `Delete Selected` button is disabled
+- Otherwise clicking it will open a modal previewing how many items will be deleted and asking you to confirm
+
+You can rename and delete items from the `DirectoryView` with the buttons in the `Actions` column of the table.
+
+- Clicking on the edit icon will open a modal for you to enter a new name for the item selected. The new name has to be unique among other items in the directory
+- Clicking the delete icon will trigger the same result as if you selected the row and clicked `Delete Selected`
+
+You can navigate into a Directory of Note by clicking on any other part of the item's table row
+
+- The `Breadcrumbs` component will always update to show your current path
+- Clicking `Previous Directory` will take you up one level (unless you're in the root directory), or you can navigate further by clicking on any Breadcrumb segment
+
+Clicking into a note will display the Note in `NoteView`
+
+I tried to make it a bit more legible by adding Edit buttons to both the note text and name, in case the user doesn't realize immediately that they can edit both by clicking on the text itself.
+
+- When editing the title, pressing `esc` is the same as clicking "Cancel", and pressing `Enter` is the same as clicking "Submit"
+- The `esc` key does the same when editing note text, but the Enter button just adds a line break.
+
+### Debug helper
+
+If you run this project with `NEXT_PUBLIC_DEBUG_NOTES_FS = true` in your `.env.local` file, an additional row of buttons appears on `DirectoryView`.
+
+- `Generate Note` will generate a new note in the current directory with an arbitrary name and content
+- `Generate Directory` will generate a new empty directory with a random name
+
+This just makes it easier to populate things so you don't need to type in dummy values when trying to fill directories.
+
+### Final thoughts
+
+While I'm happy with the final result I'm submitting, the one part of this project that I wish I had been able to get finished was a way to persist the data of the filesystem. I started playing around with AWS's dynamoDB SDK, figuring I had three days and how long could it take (note: I've never worked with a NoSQL db)? It didn't work out, but I learned a valuable lesson about hubris all the same.
+
+In retrospect, my actual regret for that wasted time is that I could've gotten in some ways to cases where directories have large numbers of child items (adding either pagination or async loading, for example).
+
+I look forward to hearing back from you. Regardless your final decision, any constructive feedback would be greatly appreciated.
+
+Best,
+Mickey
