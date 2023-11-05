@@ -8,9 +8,12 @@ export function makeItem<T extends ItemType>(
   name: string,
   note?: T extends "note" ? string : never
 ): Item {
-  const itemBase: Pick<Item, "name" | "slug"> = {
+  const created = new Date();
+  const itemBase: Pick<Item, "name" | "slug" | "created" | "lastUpdated"> = {
     name,
     slug: _.kebabCase(name),
+    created,
+    lastUpdated: created
   };
 
   if (type === "directory") return { type, ...itemBase, items: [] as Item[] };

@@ -1,48 +1,16 @@
-import React, { useState } from "react";
+import { FC } from "react";
 
 import { Note } from "../../types";
-import { useNotesFS } from "../../hooks/useNotesFS";
+import { NoteContent } from "./NoteContent";
+import { NoteHeader } from "./NoteHeader";
 
-interface NoteViewProps {
+export const NoteView: FC<{
   note: Note;
-}
-
-export const NoteView: React.FC<NoteViewProps> = ({ note }) => {
-  const { updateNote } = useNotesFS();
-  const [isEditing, setIsEditing] = useState(false);
-  const [text, setText] = useState(note.note);
-
-  const handleNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setText(event.target.value);
-  };
-
-  const handleNoteSubmit = () => {
-    if (text == null) {
-      alert("Cannot save empty note.");
-      return;
-    }
-
-    updateNote(text);
-    setIsEditing(false);
-  };
-
-  return (
-    <div
-      className="noteSection"
-      onClick={() => {
-        if (!isEditing) {
-          setIsEditing(true);
-        }
-      }}
-    >
-      {isEditing ? (
-        <div>
-          <input type="text" value={text} onChange={handleNoteChange} />
-          <button onClick={handleNoteSubmit}>Save</button>
-        </div>
-      ) : (
-        <div>{text}</div>
-      )}
-    </div>
-  );
-};
+}> = ({ note }) => (
+  <div className="container px-10">
+    <article className=" relative mx-auto my-8 prose prose-zinc dark:prose-invert">
+      <NoteHeader note={note} />
+      <NoteContent note={note} />
+    </article>
+  </div>
+);

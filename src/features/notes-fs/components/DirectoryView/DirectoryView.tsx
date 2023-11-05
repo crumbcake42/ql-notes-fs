@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -12,18 +12,11 @@ import {
   Selection,
   TableColumnProps,
   SortDescriptor,
-  Button,
-  ButtonGroup,
   useDisclosure,
 } from "@nextui-org/react";
 
 import { clsx } from "clsx";
-import {
-  BsFileEarmark,
-  BsFillTrashFill,
-  BsFolder,
-  BsPenFill,
-} from "react-icons/bs";
+import { BsFileEarmark, BsFolder } from "react-icons/bs";
 
 import { Directory, Item } from "../../types";
 
@@ -31,6 +24,8 @@ import { useNotesFS } from "../../hooks/useNotesFS";
 import { AddNoteModal, AddDirectoryModal, DeleteItemsModal } from "../modals";
 
 import { DirectoryViewButtons } from "./DirectoryViewButtons";
+import { ItemActionsCell } from "./ItemActionsCell";
+import { RenameItemModal } from "../modals/RenameItemModal";
 
 interface ColProps extends Omit<TableColumnProps<Item>, "children"> {
   label: string;
@@ -55,33 +50,6 @@ const columns: ColProps[] = [
   },
 ];
 
-const ItemActions: React.FC<{
-  onRenameItem: () => void;
-  onDeleteItem: () => void;
-}> = ({ onRenameItem, onDeleteItem }) => {
-  const { selectedItems } = useNotesFS();
-  return (
-    <ButtonGroup size="sm" variant="light" radius="none">
-      <Button
-        isIconOnly
-        isDisabled={!!selectedItems}
-        color="warning"
-        onClick={onRenameItem}
-      >
-        <BsPenFill />
-      </Button>
-      <Button
-        isIconOnly
-        isDisabled={!!selectedItems}
-        color="danger"
-        onClick={onDeleteItem}
-      >
-        <BsFillTrashFill />
-      </Button>
-    </ButtonGroup>
-  );
-};
-
 export const DirectoryView: React.FC<{
   directory: Directory;
 }> = ({ directory }) => {
@@ -89,10 +57,10 @@ export const DirectoryView: React.FC<{
   const addDirectoryDisclosure = useDisclosure();
   const deleteItemsDisclosure = useDisclosure();
 
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>();
   const { setCurrentItem, selectedItems, setSelectedItems, sortItems } =
     useNotesFS();
 
+  // Handle selecting items in directory
   const handleItemClick = (name: unknown) => {
     const item = directory.items.find((i) => i.name === name);
     if (item) setCurrentItem(item);
@@ -113,12 +81,8 @@ export const DirectoryView: React.FC<{
     setSelectedItems(selected);
   };
 
-  // Clear selectedItems when component unmounts
-  useEffect(() => {
-    return () => setSelectedItems(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  // Handle sorting directory items
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>();
   useEffect(() => {
     if (sortDescriptor) sortItems(sortDescriptor);
   }, [sortItems, sortDescriptor]);
@@ -127,6 +91,23 @@ export const DirectoryView: React.FC<{
     setSelectedItems([name]);
     deleteItemsDisclosure.onOpen();
   };
+
+  // Handle renaming items in DirectoryView
+  const renameItemDisclosure = useDisclosure();
+  const [renameTarget, setRenameTarget] = useState<Item | null>(null);
+  const handleRenameItem = (target: Item) => {
+    setRenameTarget(target);
+  };
+
+  useEffect(() => {
+    if (renameTarget) renameItemDisclosure.onOpen();
+  }, [renameItemDisclosure, renameTarget]);
+
+  // Clear selectedItems when component unmounts
+  useEffect(() => {
+    return () => setSelectedItems(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -175,8 +156,8 @@ export const DirectoryView: React.FC<{
                       break;
                     case "actions":
                       cellContent = (
-                        <ItemActions
-                          onRenameItem={() => console.log("renameItem")}
+                        <ItemActionsCell
+                          onRenameItem={() => handleRenameItem(item)}
                           onDeleteItem={() => handleDeleteSingleItem(item.name)}
                         />
                       );
@@ -201,6 +182,14 @@ export const DirectoryView: React.FC<{
       <AddNoteModal {...addNoteDisclosure} />
       <AddDirectoryModal {...addDirectoryDisclosure} />
       <DeleteItemsModal {...deleteItemsDisclosure} />
+      <RenameItemModal
+        {...renameItemDisclosure}
+        renameTarget={renameTarget}
+        onClose={() => {
+          setRenameTarget(null);
+          renameItemDisclosure.onClose();
+        }}
+      />
     </>
   );
 };

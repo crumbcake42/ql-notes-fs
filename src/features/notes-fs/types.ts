@@ -5,6 +5,8 @@ interface ItemBase<T extends ItemType> {
   name: string;
   slug: string;
   parent?: Directory;
+  created: Date;
+  lastUpdated: Date;
 }
 
 export interface Directory extends ItemBase<"directory"> {

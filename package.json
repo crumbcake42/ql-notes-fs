@@ -30,6 +30,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
     "@types/lodash": "^4.14.199"
   }
 }

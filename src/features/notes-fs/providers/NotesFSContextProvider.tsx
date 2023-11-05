@@ -88,6 +88,29 @@ export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
     });
   }, []);
 
+  const renameItem = useCallback((newName: string, target?: string) => {
+    setCurrentItem((prevItem) => {
+      const newItem = _.cloneDeep(prevItem);
+      // If we're in DirectoryView and renaming a target item, update the dir items as needed
+      if (target && newItem.type === "directory") {
+        newItem.items = newItem.items.map((i) => {
+          if (i.name === target) {
+            i.name = newName;
+            i.lastUpdated = new Date();
+          }
+          return i;
+        });
+      }
+      // Otherwise just rename currentItem
+      else {
+        newItem.name = newName;
+      }
+
+      newItem.lastUpdated = new Date();
+      return newItem;
+    });
+  }, []);
+
   return (
     <NotesFSContext.Provider
       value={{
@@ -100,6 +123,7 @@ export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
         sortItems,
         deleteItems,
         updateNote,
+        renameItem,
       }}
     >
       {children}
