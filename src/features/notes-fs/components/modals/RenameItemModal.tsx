@@ -74,7 +74,6 @@ export const RenameItemModal: FC<RenameItemModal> = ({
   onClose,
   renameTarget,
 }) => {
-  console.log(renameTarget);
   const { currentItem, renameItem } = useNotesFS();
   const [newName, setNewName] = useState(renameTarget?.name);
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +110,6 @@ export const RenameItemModal: FC<RenameItemModal> = ({
     if (!prevName) return;
 
     const isValidName = validateName(newName);
-    console.log({ newName, isValidName });
     if (isValidName && prevName) renameItem(newName, prevName);
     if (onClose) onClose();
   };
@@ -133,6 +131,7 @@ export const RenameItemModal: FC<RenameItemModal> = ({
             </ModalHeader>
             <ModalBody>
               <Input
+                autoFocus
                 type="text"
                 label=""
                 value={newName}

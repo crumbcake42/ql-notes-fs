@@ -36,7 +36,6 @@ export const NotesFSContextProvider: FC<PropsWithChildren> = ({ children }) => {
   }, []);
 
   const sortItems = useCallback(({ column, direction }: SortDescriptor) => {
-    console.log({ column, direction });
     const isItemKey = (key: unknown): key is keyof Item =>
       typeof key === "string" &&
       ["type", "name", "slug", "parent"].includes(key);
